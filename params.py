@@ -21,7 +21,7 @@ y_locations = np.random.uniform(0,bounds[1],num_UAVs)
 h_UAV = 200*np.ones(num_UAVs) #meters, altitude of UAV
 
 #communication parameters
-f_x = 2e9 #2GHz, carrier frequency
+f_c = 2e9 #2GHz, carrier frequency
 P = .5*np.ones(num_UAVs) #W, transmit power
 B = 1e6 #1MHz, bandwidth
 N_O = -170 #dBm/Hz noise power
@@ -30,6 +30,8 @@ mu_nlos = 23 #dB, Additional path loss for non-line of sight
 alpha = np.ones(num_UAVs)*0.01 #control time factor
 b1 = 0.36
 b2 = 0.21
+beta_interference_factor = 1
+
 
 
 
