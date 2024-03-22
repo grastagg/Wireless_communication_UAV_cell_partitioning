@@ -19,6 +19,7 @@ num_UAVs = 5
 x_locations = np.random.uniform(0,bounds[0],num_UAVs)
 y_locations = np.random.uniform(0,bounds[1],num_UAVs)
 h_UAV = 200*np.ones(num_UAVs) #meters, altitude of UAV
+hover_time = 30*60*np.ones(num_UAVs) #30 minutes, hover time of UAV
 
 #communication parameters
 f_c = 2e9 #2GHz, carrier frequency
@@ -31,6 +32,18 @@ alpha = np.ones(num_UAVs)*0.01 #control time factor
 b1 = 0.36
 b2 = 0.21
 beta_interference_factor = 1
+
+
+
+#parameters for numerical integration
+num_x_points = 100
+num_y_points = 100
+
+x_int = np.linspace(0,bounds[0],num_x_points)
+y_int = np.linspace(0,bounds[1],num_y_points)
+dx = x_int[1]-x_int[0]
+dy = y_int[1]-y_int[0]
+
 
 
 
