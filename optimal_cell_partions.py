@@ -1,5 +1,6 @@
 import numpy as np
 import params as P
+import matplotlib.pyplot as plt
 
 
 def average_data_service_at_xy(x,y,uav_index):
@@ -20,7 +21,13 @@ def recieved_power(x,y,uav_index):
     K_o = ((4*np.pi*P.f_c)/(3e9))**2
     theta_i = elevation_angle(x,y,uav_index)
     di_squared = (x-P.x_locations[uav_index])**2 + (y-P.y_locations[uav_index])**2 + P.h_UAV[uav_index]**2
-    P_los = P.b1*(180/np.pi * theta_i - 15)**P.b2
+    # if(180/np.pi * theta_i - 15 < 0):
+        # print(x,y,P.h_UAV[uav_index])
+        # print("Error: theta_i is less than 15 degrees")
+        # print(theta_i*180/np.pi)
+    # P_los = P.b1*(180/np.pi * theta_i - 15)**P.b2
+    P_los = .5
+    # P_los = P.b1*(180/np.pi * theta_i)**P.b2
     P_nlos = 1 - P_los
     
     den = K_o*di_squared*(P_los * P.mu_los+P_nlos*P.mu_nlos)
@@ -95,14 +102,81 @@ def compute_grad_f(psi):
     
     
     
+def find_partitions_from_psi(psi):
+    #Line 25 from Algorithm 1
+    #finds the partitions from the given psi
+    cell_index = np.zeros((len(P.x_int),len(P.y_int)))
+    
+    for i,x in enumerate(P.x_int):
+        for j,y in enumerate(P.y_int):
+            for k in range(P.num_UAVs):
+                min_val = np.inf
+                min_index = -1
+                if J(x,y,k) - psi[k] < min_val:
+                    min_val = J(x,y,k) - psi[k]
+                    min_index = k
+                cell_index[i,j] = min_index
+                
+    print(cell_index)
+    return cell_index
+
+def plot_cell_partitions(cell_index):
+    #plots the cell partitions
+    print(cell_index.shape)
+    [X_plot,Y_plot] = np.meshgrid(P.x_int,P.y_int)
+    
+    plt.figure()
+    c = plt.contourf(X_plot,Y_plot,cell_index,levels = np.arange(0,P.num_UAVs+1))
+    plt.colorbar(c)
+    for i in range(P.num_UAVs):
+        plt.plot(P.x_locations[i],P.y_locations[i],'ro')
+    plt.show()
+
+
+def find_max_cost(uav_index):
+    max_cost = -np.inf
+    for x in P.x_int:
+        for y in P.y_int:
+            max_cost = max(max_cost,J(x,y,uav_index))
+    return max_cost
+
+
+def integrate_c_transform_over_d(psi):
+    int_val = 0
+    for x in P.x_int:
+        for y in P.y_int:
+            max_cost = -np.inf
+            for k in range(P.num_UAVs):
+                max_cost = max(max_cost,J(x,y,k)-psi[k])
+            int_val += max_cost*P.f(x,y)*P.dx*P.dy
+    print(int_val)
+    return int_val
+            
+
+def objefctive_function(psi):
+    #defined in equation 22
+    sum = 0
+    for i in range(P.num_UAVs):
+        sum += omega_i(i) * psi[i]
+    return sum + integrate_c_transform_over_d(psi)
 
     
 def find_optimal_partiions():
     psi = np.ones(P.num_UAVs)
     # 
     grad_f = compute_grad_f(psi)
-    print(grad_f)
+    obj_f = objefctive_function(psi)
+    for i in range(10):
+        print(i)
+        psi = psi + 10*grad_f
+        grad_f = compute_grad_f(psi)
+    # print(obj_f)
+    # print(grad_f)
+    print(psi)
 
 
 if __name__ == '__main__':
     find_optimal_partiions()
+    cell_index = find_partitions_from_psi(np.random.rand(P.num_UAVs))
+    plot_cell_partitions(cell_index)
+    
