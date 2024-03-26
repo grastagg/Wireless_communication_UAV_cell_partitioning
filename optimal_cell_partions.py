@@ -17,6 +17,7 @@ def elevation_angle(x,y,uav_index):
     
 
 def recieved_power(x,y,uav_index):
+    #Equation 3 from the the paper
     P_i = P.P[uav_index]
     K_o = ((4*np.pi*P.f_c)/(3e9))**2
     theta_i = elevation_angle(x,y,uav_index)
@@ -25,8 +26,8 @@ def recieved_power(x,y,uav_index):
         # print(x,y,P.h_UAV[uav_index])
         # print("Error: theta_i is less than 15 degrees")
         # print(theta_i*180/np.pi)
-    # P_los = P.b1*(180/np.pi * theta_i - 15)**P.b2
-    P_los = .5
+    P_los = P.b1*(180/np.pi * theta_i - 15)**P.b2 #equation 2
+    # P_los = .5
     # P_los = P.b1*(180/np.pi * theta_i)**P.b2
     P_nlos = 1 - P_los
     
@@ -35,6 +36,7 @@ def recieved_power(x,y,uav_index):
     return num/den
 
 def gamma(x,y,uav_index):
+    #equation 4 from the paper
     return recieved_power(x,y,uav_index)/(recieved_interference(x,y,uav_index) + 10**(P.N_O/10)/1000)
     
 def recieved_interference(x,y,uav_index):
@@ -45,11 +47,11 @@ def recieved_interference(x,y,uav_index):
     return P.beta_interference_factor*interference
 
 def effective_data_tranmission_time(uav_index):
-    return P.hover_time[uav_index] - 10*(P.N/P.num_UAVs)**2
+    return P.hover_time[uav_index] - (P.N/P.num_UAVs)**2
 
 def lambda_i(uav_index):
     sum = 0
-    for i in range(uav_index):
+    for i in range(P.num_UAVs):
         sum += effective_data_tranmission_time(i)
     return P.B/(P.N*P.alpha[uav_index])*sum
 
@@ -117,12 +119,10 @@ def find_partitions_from_psi(psi):
                     min_index = k
                 cell_index[i,j] = min_index
                 
-    print(cell_index)
     return cell_index
 
 def plot_cell_partitions(cell_index):
     #plots the cell partitions
-    print(cell_index.shape)
     [X_plot,Y_plot] = np.meshgrid(P.x_int,P.y_int)
     
     plt.figure()
@@ -149,7 +149,6 @@ def integrate_c_transform_over_d(psi):
             for k in range(P.num_UAVs):
                 max_cost = max(max_cost,J(x,y,k)-psi[k])
             int_val += max_cost*P.f(x,y)*P.dx*P.dy
-    print(int_val)
     return int_val
             
 
@@ -162,14 +161,16 @@ def objefctive_function(psi):
 
     
 def find_optimal_partiions():
-    psi = np.ones(P.num_UAVs)
+    psi = np.random.uniform(1,100, P.num_UAVs)
     # 
-    grad_f = compute_grad_f(psi)
-    obj_f = objefctive_function(psi)
+    # grad_f = compute_grad_f(psi)
+    # obj_f = objefctive_function(psi)
     for i in range(10):
         print(i)
-        psi = psi + 10*grad_f
         grad_f = compute_grad_f(psi)
+        print(grad_f)
+        psi = psi + 10*grad_f
+
     # print(obj_f)
     # print(grad_f)
     print(psi)

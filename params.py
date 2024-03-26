@@ -18,7 +18,7 @@ u = 10e6 #load per user, 10Mbps
 num_UAVs = 5
 x_locations = np.random.uniform(0,bounds[0],num_UAVs)
 y_locations = np.random.uniform(0,bounds[1],num_UAVs)
-h_UAV = 200*np.ones(num_UAVs) #meters, altitude of UAV
+h_UAV = 1000*np.ones(num_UAVs) #meters, altitude of UAV
 hover_time = 30*60*np.ones(num_UAVs) #30 minutes, hover time of UAV
 
 #communication parameters
