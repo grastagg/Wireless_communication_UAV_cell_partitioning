@@ -24,7 +24,7 @@ hover_time = 30*60*np.ones(num_UAVs) #30 minutes, hover time of UAV
 #communication parameters
 f_c = 2e9 #2GHz, carrier frequency
 P = .5*np.ones(num_UAVs) #W, transmit power
-B = 1e6 #1MHz, bandwidth
+B = 1 #1MHz, bandwidth
 N_O = -170 #dBm/Hz noise power
 mu_los = 10**(3/10) #dB, Additional path loss for line of sight
 mu_nlos = 10**(23/10) #dB, Additional path loss for non-line of sight

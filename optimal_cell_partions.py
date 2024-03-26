@@ -161,23 +161,42 @@ def objefctive_function(psi):
 
     
 def find_optimal_partiions():
-    psi = np.random.uniform(1,100, P.num_UAVs)
+    # psi = np.random.uniform(1,100, P.num_UAVs)
+    psi = np.ones(P.num_UAVs)*100
+
     # 
-    # grad_f = compute_grad_f(psi)
-    # obj_f = objefctive_function(psi)
+    grad_f = compute_grad_f(psi)
+    iter = 0
+    # while np.linalg.norm(grad_f) > 1e-3:
     for i in range(10):
         print(i)
         grad_f = compute_grad_f(psi)
-        print(grad_f)
-        psi = psi + 10*grad_f
-
-    # print(obj_f)
-    # print(grad_f)
-    print(psi)
+        print(np.linalg.norm(grad_f))
+        k=100
+        e = 1
+        psi_plus = psi + e*grad_f
+        obj_func_psi = objefctive_function(psi)
+        print(obj_func_psi)
+        if objefctive_function(psi_plus) < objefctive_function(psi):
+            while obj_func_psi < objefctive_function(psi_plus):
+                k = k+1
+                e = 2**(k-1)*e
+                psi_plus = psi + e*grad_f
+        else:
+            while obj_func_psi >= objefctive_function(psi_plus):
+                k = k+1
+                e = 2**(-k+1)*e
+                psi_plus = psi + e*grad_f
+        psi = psi_plus
+        iter += 1
+                
+        
+    
+    return psi
 
 
 if __name__ == '__main__':
-    find_optimal_partiions()
-    cell_index = find_partitions_from_psi(np.random.rand(P.num_UAVs))
+    psi = find_optimal_partiions()
+    cell_index = find_partitions_from_psi(psi)
     plot_cell_partitions(cell_index)
     
