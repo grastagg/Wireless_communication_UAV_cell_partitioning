@@ -1,6 +1,9 @@
 import numpy as np
 import params as P
 import matplotlib.pyplot as plt
+from pyoptsparse import Optimization, OPT
+import jax
+
 
 
 def average_data_service_at_xy(x,y,uav_index):
@@ -157,7 +160,7 @@ def objefctive_function(psi):
     sum = 0
     for i in range(P.num_UAVs):
         sum += omega_i(i) * psi[i]
-    return sum + integrate_c_transform_over_d(psi)
+    return np.array([sum + integrate_c_transform_over_d(psi)])
 
     
 def find_optimal_partiions():
@@ -195,8 +198,62 @@ def find_optimal_partiions():
     return psi
 
 
+
+def get_gradient_finite_diff(f,x,h):
+    #calculate gradient using finite differencing
+    x = np.array(x)
+
+    #store the function value at x
+    fx = f(x)
+
+    #initialize the jacobian matrix (# functions by # variables
+    grad = np.zeros((len(fx),len(x)))
+
+    #this loops through each column of the Jacobian
+    for i in range(len(x)):
+        #the next three lines creates a step vector where all elements are zeros except for the current step direction
+        epsilon = np.zeros(len(x))
+        step = h * (1 + abs(x[i]))
+        epsilon[i] = step
+
+        #add the step to the x vector
+        xi = x + epsilon
+
+        grad[:,i] = (f(xi) - fx)/step
+        # print("grad[:,i]",grad[:,i])
+
+    return grad
+
+    
+def optimize_with_IPOPT():
+                
+    def objfunc(xdict):
+        psi = xdict['psi']
+        # obj = -next_measurement_covariance_determinant(pos, estimatedParams_list, estimatedRadarCovariance_list)
+        obj = -objefctive_function(psi)
+        funcs = {}
+        funcs['obj'] = obj
+        fail = False
+        return funcs, fail
+
+    optProb = Optimization("find best measurement location", objfunc)
+    optProb.addVarGroup(name = "psi", nVars = P.num_UAVs, varType = 'c', value = np.ones(P.num_UAVs))
+    optProb.addObj("obj")
+    opt = OPT("ipopt")
+    opt.options['hsllib'] = "/home/grant/python_libraries/ThirdParty-HSL/.libs/libcoinhsl.so"
+    opt.options['linear_solver'] = 'ma97'
+    opt.options['print_level'] = 5
+        
+    opt.options['max_iter'] = 100
+    opt.options['tol'] = 1e-8
+    sol = opt(optProb, sens = 'FD')
+
 if __name__ == '__main__':
-    psi = find_optimal_partiions()
+    psi = optimize_with_IPOPT()
+    # psi = np.random.uniform(1,100, P.num_UAVs)
+    # print("finite diff", get_gradient_finite_diff(objefctive_function,psi,1e-6))
+    # print("grad", compute_grad_f(psi))
+    # psi = find_optimal_partiions()
     cell_index = find_partitions_from_psi(psi)
     plot_cell_partitions(cell_index)
     
