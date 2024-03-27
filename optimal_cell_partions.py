@@ -120,7 +120,7 @@ def find_partitions_from_psi(psi):
                 if J(x,y,k) - psi[k] < min_val:
                     min_val = J(x,y,k) - psi[k]
                     min_index = k
-                cell_index[i,j] = min_index
+            cell_index[i,j] = min_index
                 
     return cell_index
 
@@ -240,13 +240,14 @@ def optimize_with_IPOPT():
     optProb.addVarGroup(name = "psi", nVars = P.num_UAVs, varType = 'c', value = np.ones(P.num_UAVs))
     optProb.addObj("obj")
     opt = OPT("ipopt")
-    opt.options['hsllib'] = "/home/grant/python_libraries/ThirdParty-HSL/.libs/libcoinhsl.so"
-    opt.options['linear_solver'] = 'ma97'
+    # opt.options['hsllib'] = "/home/grant/python_libraries/ThirdParty-HSL/.libs/libcoinhsl.so"
+    # opt.options['linear_solver'] = 'ma97'
     opt.options['print_level'] = 5
         
-    opt.options['max_iter'] = 100
+    opt.options['max_iter'] = 10
     opt.options['tol'] = 1e-8
     sol = opt(optProb, sens = 'FD')
+    return sol.xStar['psi']
 
 if __name__ == '__main__':
     psi = optimize_with_IPOPT()

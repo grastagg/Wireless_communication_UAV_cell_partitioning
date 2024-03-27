@@ -36,8 +36,8 @@ beta_interference_factor = 1
 
 
 #parameters for numerical integration
-num_x_points = 100
-num_y_points = 100
+num_x_points = 40
+num_y_points = 40
 
 x_int = np.linspace(0,bounds[0],num_x_points)
 y_int = np.linspace(0,bounds[1],num_y_points)
