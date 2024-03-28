@@ -29,6 +29,7 @@ Total number of inequality constraints...............:        1
         inequality constraints with only upper bounds:        0
 
 iter    objective    inf_pr   inf_du lg(mu)  ||d||  lg(rg) alpha_du alpha_pr  ls
+<<<<<<< HEAD
    0  6.2509719e-01 0.00e+00 1.62e-01   0.0 0.00e+00    -  0.00e+00 0.00e+00   0
    1  5.5730284e-01 0.00e+00 1.73e-01 -11.0 1.62e-01    -  1.00e+00 1.00e+00f  1
    2  4.8366912e-01 0.00e+00 1.84e-01 -11.0 1.73e-01    -  1.00e+00 1.00e+00f  1
@@ -51,15 +52,26 @@ Constraint violation....:   0.0000000000000000e+00    0.0000000000000000e+00
 Variable bound violation:   0.0000000000000000e+00    0.0000000000000000e+00
 Complementarity.........:   0.0000000000000000e+00    0.0000000000000000e+00
 Overall NLP error.......:   2.0000000011677344e-01    2.0000000011677344e-01
+=======
+   0 -8.1374967e+02 0.00e+00 1.63e-01   0.0 0.00e+00    -  0.00e+00 0.00e+00   0
+   1 -8.1381101e+02 0.00e+00 1.63e-01 -11.0 1.63e-01    -  1.00e+00 1.00e+00f  1
+   2 -8.1387236e+02 0.00e+00 1.63e-01 -11.0 1.63e-01    -  1.00e+00 1.00e+00f  1
+>>>>>>> working on voronoi
 
+Number of Iterations....: 2
 
-Number of objective function evaluations             = 11
-Number of objective gradient evaluations             = 11
+Number of objective function evaluations             = 4
+Number of objective gradient evaluations             = 3
 Number of equality constraint evaluations            = 0
-Number of inequality constraint evaluations          = 11
+Number of inequality constraint evaluations          = 4
 Number of equality constraint Jacobian evaluations   = 0
-Number of inequality constraint Jacobian evaluations = 11
+Number of inequality constraint Jacobian evaluations = 4
 Number of Lagrangian Hessian evaluations             = 0
+<<<<<<< HEAD
 Total seconds in IPOPT                               = 3.179
+=======
+Total CPU secs in IPOPT (w/o function evaluations)   =      1.173
+Total CPU secs in NLP function evaluations           =      3.367
+>>>>>>> working on voronoi
 
-EXIT: Maximum Number of Iterations Exceeded.
+EXIT: Invalid number in NLP function or derivative detected.

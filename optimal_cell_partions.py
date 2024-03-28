@@ -159,6 +159,21 @@ def integrate_c_transform_over_d(psi):
             int_val += max_cost*P.f(x,y)*P.dx*P.dy
     return int_val
             
+def create_voronoi_cells():
+    #instead of using distance to seperate cells, we use the cost function J(x,y,k), the cell is where the uav cost is lowest
+    cell_index = np.zeros((len(P.x_int),len(P.y_int)))
+    
+    for i,x in enumerate(P.x_int):
+        for j,y in enumerate(P.y_int):
+            for k in range(P.num_UAVs):
+                min_val = np.inf
+                min_index = -1
+                if J(x,y,k) < min_val:
+                    min_val = J(x,y,k)
+                    min_index = k
+            cell_index[i,j] = min_index
+                
+    return cell_index
 
 def objefctive_function(psi):
     #defined in equation 22
@@ -256,13 +271,12 @@ def optimize_with_IPOPT():
     return sol.xStar['psi']
 
 if __name__ == '__main__':
-    psi = optimize_with_IPOPT()
-    # psi = np.ones(P.num_UAVs)*10
+    # psi = optimize_with_IPOPT()
     # psi = np.random.uniform(1,100, P.num_UAVs)
     # print("finite diff", get_gradient_finite_diff(objefctive_function,psi,1e-6))
     # print("grad", compute_grad_f(psi))
     # psi = find_optimal_partiions()
-    print(psi)
-    cell_index = find_partitions_from_psi(psi)
+    # cell_index = find_partitions_from_psi(psi)
+    cell_index = create_voronoi_cells()
     plot_cell_partitions(cell_index)
     
