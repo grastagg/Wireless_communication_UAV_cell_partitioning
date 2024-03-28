@@ -16,9 +16,11 @@ u = 10e6 #load per user, 10Mbps
 
 #UAV parameters
 num_UAVs = 5
-x_locations = np.random.uniform(0,bounds[0],num_UAVs)
-y_locations = np.random.uniform(0,bounds[1],num_UAVs)
-h_UAV = 1000*np.ones(num_UAVs) #meters, altitude of UAV
+# x_locations = np.random.uniform(0,bounds[0],num_UAVs)
+x_locations = np.flip(np.array([250,500,500,750,750]))
+y_locations = np.flip(np.array([500, 250, 750,500,750]))
+# y_locations = np.random.uniform(0,bounds[1],num_UAVs)
+h_UAV = 200*np.ones(num_UAVs) #meters, altitude of UAV
 hover_time = 30*60*np.ones(num_UAVs) #30 minutes, hover time of UAV
 
 #communication parameters
@@ -28,7 +30,7 @@ B = 1 #1MHz, bandwidth
 N_O = -170 #dBm/Hz noise power
 mu_los = 10**(3/10) #dB, Additional path loss for line of sight
 mu_nlos = 10**(23/10) #dB, Additional path loss for non-line of sight
-alpha = np.ones(num_UAVs)*0.01 #control time factor
+alpha = np.ones(num_UAVs) #control time factor
 b1 = 0.36
 b2 = 0.21
 beta_interference_factor = 1
@@ -36,8 +38,8 @@ beta_interference_factor = 1
 
 
 #parameters for numerical integration
-num_x_points = 40
-num_y_points = 40
+num_x_points = 20
+num_y_points = 20
 
 x_int = np.linspace(0,bounds[0],num_x_points)
 y_int = np.linspace(0,bounds[1],num_y_points)

@@ -25,11 +25,13 @@ def recieved_power(x,y,uav_index):
     K_o = ((4*np.pi*P.f_c)/(3e9))**2
     theta_i = elevation_angle(x,y,uav_index)
     di_squared = (x-P.x_locations[uav_index])**2 + (y-P.y_locations[uav_index])**2 + P.h_UAV[uav_index]**2
-    # if(180/np.pi * theta_i - 15 < 0):
+    if(180/np.pi * theta_i - 15 < 0):
+        P_los = 0
+    else:
+        P_los = P.b1*(180/np.pi * theta_i - 15)**P.b2 #equation 2
         # print(x,y,P.h_UAV[uav_index])
         # print("Error: theta_i is less than 15 degrees")
         # print(theta_i*180/np.pi)
-    P_los = P.b1*(180/np.pi * theta_i - 15)**P.b2 #equation 2
     # P_los = .5
     # P_los = P.b1*(180/np.pi * theta_i)**P.b2
     P_nlos = 1 - P_los
@@ -50,12 +52,13 @@ def recieved_interference(x,y,uav_index):
     return P.beta_interference_factor*interference
 
 def effective_data_tranmission_time(uav_index):
-    return P.hover_time[uav_index] - (P.N/P.num_UAVs)**2
+    return P.hover_time[uav_index] - 0.01*(P.N/P.num_UAVs)**2
 
 def lambda_i(uav_index):
     sum = 0
     for i in range(P.num_UAVs):
         sum += effective_data_tranmission_time(i)
+    print(sum)
     return P.B/(P.N*P.alpha[uav_index])*sum
 
 
@@ -63,6 +66,7 @@ def lambda_i(uav_index):
 lambda_i_precomputed = np.zeros(P.num_UAVs)
 for i in range(P.num_UAVs):
     lambda_i_precomputed[i] = lambda_i(i)
+print(lambda_i_precomputed)
 
 def J(x,y,uav_index):
     return -lambda_i_precomputed[uav_index]*np.log2(1+gamma(x,y,uav_index))
@@ -114,10 +118,10 @@ def find_partitions_from_psi(psi):
     
     for i,x in enumerate(P.x_int):
         for j,y in enumerate(P.y_int):
+            min_val = np.inf
+            min_index = -1
             for k in range(P.num_UAVs):
-                min_val = np.inf
-                min_index = -1
-                if J(x,y,k) - psi[k] < min_val:
+                if (J(x,y,k) - psi[k]) < min_val:
                     min_val = J(x,y,k) - psi[k]
                     min_index = k
             cell_index[i,j] = min_index
@@ -129,7 +133,8 @@ def plot_cell_partitions(cell_index):
     [X_plot,Y_plot] = np.meshgrid(P.x_int,P.y_int)
     
     plt.figure()
-    c = plt.contourf(X_plot,Y_plot,cell_index,levels = np.arange(0,P.num_UAVs+1))
+    # c = plt.contourf(X_plot,Y_plot,cell_index,levels = np.arange(0,P.num_UAVs+1)-1)
+    c = plt.pcolormesh(X_plot,Y_plot,cell_index)
     plt.colorbar(c)
     for i in range(P.num_UAVs):
         plt.plot(P.x_locations[i],P.y_locations[i],'ro')
@@ -160,7 +165,7 @@ def objefctive_function(psi):
     sum = 0
     for i in range(P.num_UAVs):
         sum += omega_i(i) * psi[i]
-    return np.array([sum + integrate_c_transform_over_d(psi)])
+    return sum + integrate_c_transform_over_d(psi)
 
     
 def find_optimal_partiions():
@@ -171,7 +176,7 @@ def find_optimal_partiions():
     grad_f = compute_grad_f(psi)
     iter = 0
     # while np.linalg.norm(grad_f) > 1e-3:
-    for i in range(10):
+    for i in range(100):
         print(i)
         grad_f = compute_grad_f(psi)
         print(np.linalg.norm(grad_f))
@@ -240,8 +245,9 @@ def optimize_with_IPOPT():
     optProb.addVarGroup(name = "psi", nVars = P.num_UAVs, varType = 'c', value = np.ones(P.num_UAVs))
     optProb.addObj("obj")
     opt = OPT("ipopt")
-    # opt.options['hsllib'] = "/home/grant/python_libraries/ThirdParty-HSL/.libs/libcoinhsl.so"
-    # opt.options['linear_solver'] = 'ma97'
+
+    opt.options['hsllib'] = '/home/grant/packages/ThirdParty-HSL/.libs/libcoinhsl.so'
+    opt.options['linear_solver'] = 'ma97'
     opt.options['print_level'] = 5
         
     opt.options['max_iter'] = 10
@@ -251,10 +257,12 @@ def optimize_with_IPOPT():
 
 if __name__ == '__main__':
     psi = optimize_with_IPOPT()
+    # psi = np.ones(P.num_UAVs)*10
     # psi = np.random.uniform(1,100, P.num_UAVs)
     # print("finite diff", get_gradient_finite_diff(objefctive_function,psi,1e-6))
     # print("grad", compute_grad_f(psi))
     # psi = find_optimal_partiions()
+    print(psi)
     cell_index = find_partitions_from_psi(psi)
     plot_cell_partitions(cell_index)
     
