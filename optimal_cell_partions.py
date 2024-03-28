@@ -58,7 +58,6 @@ def lambda_i(uav_index):
     sum = 0
     for i in range(P.num_UAVs):
         sum += effective_data_tranmission_time(i)
-    print(sum)
     return P.B/(P.N*P.alpha[uav_index])*sum
 
 
@@ -66,7 +65,6 @@ def lambda_i(uav_index):
 lambda_i_precomputed = np.zeros(P.num_UAVs)
 for i in range(P.num_UAVs):
     lambda_i_precomputed[i] = lambda_i(i)
-print(lambda_i_precomputed)
 
 def J(x,y,uav_index):
     return -lambda_i_precomputed[uav_index]*np.log2(1+gamma(x,y,uav_index))
@@ -165,9 +163,9 @@ def create_voronoi_cells():
     
     for i,x in enumerate(P.x_int):
         for j,y in enumerate(P.y_int):
+            min_val = np.inf
+            min_index = -1
             for k in range(P.num_UAVs):
-                min_val = np.inf
-                min_index = -1
                 if J(x,y,k) < min_val:
                     min_val = J(x,y,k)
                     min_index = k
@@ -245,6 +243,15 @@ def get_gradient_finite_diff(f,x,h):
     return grad
 
     
+def compute_average_number_of_users_in_cell(cell_index):
+    num_user = np.zeros(P.num_UAVs)
+    for i,x in enumerate(P.x_int):
+        for j,y in enumerate(P.y_int):
+            num_user[int(cell_index[i][j])] += P.f(x,y)*P.dx*P.dy
+    return num_user*P.N
+
+
+    
 def optimize_with_IPOPT():
                 
     def objfunc(xdict):
@@ -278,5 +285,9 @@ if __name__ == '__main__':
     # psi = find_optimal_partiions()
     # cell_index = find_partitions_from_psi(psi)
     cell_index = create_voronoi_cells()
+    average_users = compute_average_number_of_users_in_cell(cell_index)
+    print(average_users)
+    print(np.sum(average_users))
     plot_cell_partitions(cell_index)
+    
     

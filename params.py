@@ -8,7 +8,7 @@ bounds = [1000,1000]
 # Parameters for user distribution, For the paper simulation they used a truncated guassian distribution, however any arbitrary distribution can be used
 mean = [250,300]
 std_dev = [1000,1000]
-scale_factor = 2*np.pi*std_dev[0]*std_dev[1]*erf((bounds[0]-mean[0])/(np.sqrt(2)*std_dev[0]))*erf((bounds[1]-mean[1])/(np.sqrt(2)*std_dev[1]))
+scale_factor = np.pi*std_dev[0]*std_dev[1]*erf((bounds[0]-mean[0])/(np.sqrt(2)*std_dev[0]))*erf((bounds[1]-mean[1])/(np.sqrt(2)*std_dev[1]))
 def f(x,y):
     return 1/scale_factor*np.exp(-((x-mean[0])**2/(2*std_dev[0]**2) + (y-mean[1])**2/(2*std_dev[1]**2)))
 N = 300 #number of users
@@ -38,8 +38,8 @@ beta_interference_factor = 1
 
 
 #parameters for numerical integration
-num_x_points = 20
-num_y_points = 20
+num_x_points = 100
+num_y_points = 100
 
 x_int = np.linspace(0,bounds[0],num_x_points)
 y_int = np.linspace(0,bounds[1],num_y_points)
